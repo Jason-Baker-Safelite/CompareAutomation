@@ -40,7 +40,7 @@ namespace CompareAutomation
             FileInfo[] fileArray = dirInfo.GetFiles("?.txt");
             string cmdText = "C:\\Program Files\\Beyond Compare 4\\BCompare.exe";
             string nullFile = "null.txt1";
-            string cmdArgs = "@\"C:\\TEMP\\comparescript.txt1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_dev.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
+            string cmdArgs = "@\"C:\\Users\\Jason.Baker\\Projects\\CompareAutomation\\CompareAutomation\\comparescript.txt1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_dev.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
             //string cmdArgs = "@\"C:\\TEMP\\testscript.txt\" \"C:\\TEMP\\null.TXT1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
             //string cmdArgs = "@\"C:\\TEMP\\null.TXT1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
             string DevPackage;
@@ -113,8 +113,6 @@ namespace CompareAutomation
                 commandArguments.Insert(0, @"@\");
                 finalArgs = commandArguments.ToString();
             }
-            
-            
             Console.ReadLine();
         }
 
