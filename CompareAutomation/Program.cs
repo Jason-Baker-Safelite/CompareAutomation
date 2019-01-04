@@ -6,6 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+//Automation of the comparing of files derived by changes in the mainframe code theough BeyondCompare using command line
+//Generating a report
+//This script compares two files by name and generates an html report showing differences with context:
+//text-report layout:side-by-side &
+// options:ignore-unimportant,display-context &
+// output-to:%3 output-options:html-color %1 %2
+//https://www.scootersoftware.com/v4help/index.html?sample_scripts.html
+//
+
+
 namespace CompareAutomation
 {
     class Program
