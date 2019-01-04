@@ -37,18 +37,14 @@ namespace CompareAutomation
         static void Main(string[] args)
         {
             DirectoryInfo dirInfo = new DirectoryInfo("c:\\TEMP\\");
-            FileInfo[] fileArray = dirInfo.GetFiles("?.txt");
+            FileInfo[] fileArray = dirInfo.GetFiles("*.txt");
             string cmdText = "C:\\Program Files\\Beyond Compare 4\\BCompare.exe";
             string nullFile = "null.txt1";
             string cmdArgs = "@\"C:\\Users\\Jason.Baker\\Projects\\CompareAutomation\\CompareAutomation\\comparescript.txt1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_dev.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
-            //string cmdArgs = "@\"C:\\TEMP\\testscript.txt\" \"C:\\TEMP\\null.TXT1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
-            //string cmdArgs = "@\"C:\\TEMP\\null.TXT1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
             string DevPackage;
             string ModuleType;
             string ModuleName;
             string Region;
-
-            RunCommand(cmdText, cmdArgs);
 
             Dictionary<string, Compare> compareDictionary = new Dictionary<string, Compare>();
                         
@@ -67,7 +63,6 @@ namespace CompareAutomation
                     if (compareDictionary.ContainsKey(compareKey))
                     {
                         Compare compareMatchItem = compareDictionary[compareKey];
-                        //compareDictionary[compareKey].Region
                         LoadFileName(Region, item, compareMatchItem);
                     }
                     else
@@ -80,8 +75,8 @@ namespace CompareAutomation
                             DevPackage = DevPackage,
                             Developer = "",
                             Processed = false,
-                            DevFileName = "",
-                            ProdFileName = ""
+                            DevFileName = nullFile,
+                            ProdFileName = nullFile
                         };
                         LoadFileName(Region, item, compareItem);
                         compareDictionary.Add(compareKey, compareItem);
@@ -90,28 +85,16 @@ namespace CompareAutomation
             }
             string directory = "C:\\TEMP\\";
             string finalArgs = "";
-            //testscript.txt\" \"C:\\TEMP\\null.TXT1\" \"C:\\TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"C:\\TEMP\\Compare_SLNAGSST.html\"";
+
             foreach (var matchedItems in compareDictionary)
             {
-                StringBuilder commandArguments = new StringBuilder();
-                //commandArguments.Append(@"@\");
-                commandArguments.Append(@"""");
-                commandArguments.Append(directory);
-                commandArguments.Append(matchedItems.Value.DevFileName);
-                commandArguments.Append(@"""");
-                commandArguments.Append(" ");
-                commandArguments.Append(@"""");
-                commandArguments.Append(directory);
-                commandArguments.Append(matchedItems.Value.ProdFileName);
-                commandArguments.Append(@"""");
-                commandArguments.Append(" ");
-                commandArguments.Append(@"""");
-                commandArguments.Append(directory);
-                commandArguments.Append(matchedItems.Key+".html");
-                commandArguments.Append(@"""");
-                commandArguments = commandArguments.Replace(@"\", @"\\");
-                commandArguments.Insert(0, @"@\");
-                finalArgs = commandArguments.ToString();
+                string cmdArgScript = "@\"C:\\Users\\Jason.Baker\\Projects\\CompareAutomation\\CompareAutomation\\comparescript.txt1\"";
+                string cmdArgProd = "\"C:\\TEMP\\" + matchedItems.Value.ProdFileName + "\"";
+                string cmdArgDev = "\"C:\\TEMP\\" + matchedItems.Value.DevFileName + "\"";
+                string outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare";
+                string cmdArgOutput = "\"C:\\TEMP\\" + outputKey + ".html" + "\"";
+                finalArgs = cmdArgScript + " " + cmdArgProd + " " + cmdArgDev + " " + cmdArgOutput;
+                RunCommand(cmdText, finalArgs);
             }
             Console.ReadLine();
         }
