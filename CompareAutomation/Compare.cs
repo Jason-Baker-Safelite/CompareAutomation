@@ -19,5 +19,6 @@ namespace CompareAutomation
         public bool Processed { get; set; }
         public string DevFileName { get; set; }
         public string ProdFileName { get; set; }
+        public string StgdFileName { get; set; }
     }
 }
