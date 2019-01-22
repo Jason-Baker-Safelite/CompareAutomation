@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 
 //The null.null file is used for new module "compares"
 
@@ -54,9 +55,9 @@ namespace CompareAutomation
 
         static void Main(string[] args)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo("c:\\TEMP\\");
+            DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareFolder"));
             FileInfo[] fileArray = dirInfo.GetFiles("*.txt");
-            string cmdText = "C:\\Program Files\\Beyond Compare 4\\BCompare.exe";
+            string cmdText = ConfigurationManager.AppSettings.Get("BeyondCompareExe");
             string nullFile = "null.null";
             string DevPackage;
             string ModuleType;
@@ -106,7 +107,7 @@ namespace CompareAutomation
 
             foreach (var matchedItems in compareDictionary)
             {
-                string cmdArgScript = "@\"C:\\Users\\Jason.Baker\\Projects\\GitHub\\CompareAutomation\\CompareAutomation\\comparescript.scr\"";
+                string cmdArgScript = "@\""  + ConfigurationManager.AppSettings.Get("CompareScript") + "\"";
                 string cmdArgDev = "\"C:\\TEMP\\" + matchedItems.Value.DevFileName + "\"";
                 string cmdArgProd = "\"C:\\TEMP\\" + matchedItems.Value.ProdFileName + "\"";
                 string cmdArgStgd = "\"C:\\TEMP\\" + matchedItems.Value.StgdFileName + "\"";
