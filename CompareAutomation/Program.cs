@@ -112,13 +112,13 @@ namespace CompareAutomation
                 string cmdArgStgd = "\"C:\\TEMP\\" + matchedItems.Value.StgdFileName + "\"";
                 string outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_prod_dev";
                 string cmdArgOutput = "\"C:\\TEMP\\" + outputKey + ".html" + "\"";
-                finalArgs = cmdArgScript + " " + cmdArgProd + " " + cmdArgDev + " " + cmdArgOutput;
+                finalArgs = " /silent " + cmdArgScript + " " + cmdArgProd + " " + cmdArgDev + " " + cmdArgOutput;
                 RunCommand(cmdText, finalArgs);
                 if (matchedItems.Value.StgdFileName != nullFile)
                 {
                     outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_dev_stgd";
                     cmdArgOutput = "\"C:\\TEMP\\" + outputKey + ".html" + "\"";
-                    finalArgs = cmdArgScript + " " + cmdArgDev + " " + cmdArgStgd + " " + cmdArgOutput;
+                    finalArgs = " /silent " + cmdArgScript + " " + cmdArgDev + " " + cmdArgStgd + " " + cmdArgOutput;
                     RunCommand(cmdText, finalArgs);
                 }
             }
