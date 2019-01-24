@@ -58,6 +58,8 @@ namespace CompareAutomation
             DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareFolder"));
             FileInfo[] fileArray = dirInfo.GetFiles("*.txt");
             string cmdText = ConfigurationManager.AppSettings.Get("BeyondCompareExe");
+            string compareScript = ConfigurationManager.AppSettings.Get("CompareScript");
+            string compareFolder = ConfigurationManager.AppSettings.Get("CompareFolder");
             string nullFile = "null.null";
             string DevPackage;
             string ModuleType;
@@ -102,23 +104,22 @@ namespace CompareAutomation
                     }
                 }
             }
-            string directory = "C:\\TEMP\\";
             string finalArgs = "";
 
             foreach (var matchedItems in compareDictionary)
             {
-                string cmdArgScript = "@\""  + ConfigurationManager.AppSettings.Get("CompareScript") + "\"";
-                string cmdArgDev = "\"C:\\TEMP\\" + matchedItems.Value.DevFileName + "\"";
-                string cmdArgProd = "\"C:\\TEMP\\" + matchedItems.Value.ProdFileName + "\"";
-                string cmdArgStgd = "\"C:\\TEMP\\" + matchedItems.Value.StgdFileName + "\"";
+                string cmdArgScript = "@\""  + compareScript + "\"";
+                string cmdArgDev = "\"" + compareFolder + "\\" + matchedItems.Value.DevFileName + "\"";
+                string cmdArgProd = "\"" + compareFolder + "\\" + matchedItems.Value.ProdFileName + "\"";
+                string cmdArgStgd = "\"" + compareFolder + "\\" + matchedItems.Value.StgdFileName + "\"";
                 string outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_prod_dev";
-                string cmdArgOutput = "\"C:\\TEMP\\" + outputKey + ".html" + "\"";
+                string cmdArgOutput = "\"" + compareFolder + "\\" + outputKey + ".html" + "\"";
                 finalArgs = " /silent " + cmdArgScript + " " + cmdArgProd + " " + cmdArgDev + " " + cmdArgOutput;
                 RunCommand(cmdText, finalArgs);
                 if (matchedItems.Value.StgdFileName != nullFile)
                 {
                     outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_dev_stgd";
-                    cmdArgOutput = "\"C:\\TEMP\\" + outputKey + ".html" + "\"";
+                    cmdArgOutput = "\"" + compareFolder + "\\" + outputKey + ".html" + "\"";
                     finalArgs = " /silent " + cmdArgScript + " " + cmdArgDev + " " + cmdArgStgd + " " + cmdArgOutput;
                     RunCommand(cmdText, finalArgs);
                 }
@@ -160,13 +161,8 @@ namespace CompareAutomation
             cmd.StartInfo.Arguments = cmdArgs;
 
             cmd.Start();
-
-            /* execute "dir" */
-
-            //cmd.StandardInput.WriteLine("dir");
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
-            //Console.WriteLine(cmd.StandardOutput.ReadToEnd());
         }
     }
 }
