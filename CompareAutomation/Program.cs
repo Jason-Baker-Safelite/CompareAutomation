@@ -50,6 +50,7 @@ namespace CompareAutomation
             devPackage = 0,
             moduleType = 1,
             moduleName = 2,
+            //storyID = 3,      <-- this will be 4 and environment = 3
             environment = 3
         };
 
@@ -67,7 +68,7 @@ namespace CompareAutomation
             string Region;
 
             Dictionary<string, Compare> compareDictionary = new Dictionary<string, Compare>();
-                        
+
             for (int arrayIndex = 0; arrayIndex < fileArray.Length; arrayIndex++)
             {
                 FileInfo item = fileArray[arrayIndex];
@@ -108,7 +109,7 @@ namespace CompareAutomation
 
             foreach (var matchedItems in compareDictionary)
             {
-                string cmdArgScript = "@\""  + compareScript + "\"";
+                string cmdArgScript = "@\"" + compareScript + "\"";
                 string cmdArgDev = "\"" + compareFolder + "\\" + matchedItems.Value.DevFileName + "\"";
                 string cmdArgProd = "\"" + compareFolder + "\\" + matchedItems.Value.ProdFileName + "\"";
                 string cmdArgStgd = "\"" + compareFolder + "\\" + matchedItems.Value.StgdFileName + "\"";
@@ -124,7 +125,17 @@ namespace CompareAutomation
                     RunCommand(cmdText, finalArgs);
                 }
             }
+            CleanUpCompareFolder(fileArray);
             Console.ReadLine();
+        }
+
+        private static void CleanUpCompareFolder(FileInfo[] fileArray)
+        {
+            foreach (FileInfo fileName in fileArray)
+            {
+                fileName.Delete();
+            }
+            //throw new NotImplementedException();
         }
 
         private static void LoadFileName(string Region, FileInfo item, Compare compareMatchItem)
@@ -164,5 +175,7 @@ namespace CompareAutomation
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
         }
+
+
     }
 }
