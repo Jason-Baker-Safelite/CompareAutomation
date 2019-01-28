@@ -33,7 +33,7 @@ namespace CompareAutomation
         // look up how to prevent the BC window from displaying
         // build a file watcher program
         // if files are there, load them into a collection
-        //                     parse the input file name for module, user, environment tag (dev vs. prod), Jira story number
+        //                     parse the input file name for module, user, environmentIndex tag (dev vs. prod), Jira story number
         //                     string function to find next instance of the "_"
         //                     look for prod match of dev file
         //                           if match found, do the compare and set files as processed;
@@ -47,11 +47,11 @@ namespace CompareAutomation
 
         public enum FileBreakdown
         {
-            devPackage = 0,
-            moduleType = 1,
-            moduleName = 2,
-            //storyID = 3,      <-- this will be 4 and environment = 3
-            environment = 3
+            devPackageIndex = 0,
+            moduleTypeIndex = 1,
+            moduleNameIndex = 2,
+            storyIDIndex = 3,
+            environmentIndex = 4
         };
 
         static void Main(string[] args)
@@ -61,11 +61,13 @@ namespace CompareAutomation
             string cmdText = ConfigurationManager.AppSettings.Get("BeyondCompareExe");
             string compareScript = ConfigurationManager.AppSettings.Get("CompareScript");
             string compareFolder = ConfigurationManager.AppSettings.Get("CompareFolder");
+            string compareOutputFolder = ConfigurationManager.AppSettings.Get("CompareOutputFolder");
             string nullFile = "null.null";
-            string DevPackage;
-            string ModuleType;
-            string ModuleName;
-            string Region;
+            string devPackage;
+            string moduleType;
+            string moduleName;
+            string storyID;
+            string region;
 
             Dictionary<string, Compare> compareDictionary = new Dictionary<string, Compare>();
 
@@ -75,32 +77,34 @@ namespace CompareAutomation
                 if (item.Name != nullFile)
                 {
                     string[] parseString = item.Name.Split(new char[] { '_', '.' });
-                    DevPackage = parseString[(int)FileBreakdown.devPackage];
-                    ModuleType = parseString[(int)FileBreakdown.moduleType];
-                    ModuleName = parseString[(int)FileBreakdown.moduleName];
-                    Region = parseString[(int)FileBreakdown.environment];
-                    string compareKey = DevPackage + ModuleType + ModuleName;
+                    devPackage = parseString[(int)FileBreakdown.devPackageIndex];
+                    moduleType = parseString[(int)FileBreakdown.moduleTypeIndex];
+                    moduleName = parseString[(int)FileBreakdown.moduleNameIndex];
+                    storyID = parseString[(int)FileBreakdown.storyIDIndex];
+                    region = parseString[(int)FileBreakdown.environmentIndex];
+                    string compareKey = devPackage + moduleType + moduleName;
 
                     if (compareDictionary.ContainsKey(compareKey))
                     {
                         Compare compareMatchItem = compareDictionary[compareKey];
-                        LoadFileName(Region, item, compareMatchItem);
+                        LoadFileName(region, item, compareMatchItem);
                     }
                     else
                     {
                         Compare compareItem = new Compare()
                         {
-                            ModuleName = ModuleName,
-                            ModuleType = ModuleType,
-                            Region = Region,
-                            DevPackage = DevPackage,
+                            ModuleName = moduleName,
+                            ModuleType = moduleType,
+                            Region = region,
+                            DevPackage = devPackage,
                             Developer = "",
                             Processed = false,
                             DevFileName = nullFile,
+                            StoryID = storyID,
                             ProdFileName = nullFile,
                             StgdFileName = nullFile
                         };
-                        LoadFileName(Region, item, compareItem);
+                        LoadFileName(region, item, compareItem);
                         compareDictionary.Add(compareKey, compareItem);
                     }
                 }
@@ -109,35 +113,47 @@ namespace CompareAutomation
 
             foreach (var matchedItems in compareDictionary)
             {
+                string userStoryAttachmentFolder = CheckForOutputFolder(compareOutputFolder, matchedItems.Value.StoryID);
                 string cmdArgScript = "@\"" + compareScript + "\"";
                 string cmdArgDev = "\"" + compareFolder + "\\" + matchedItems.Value.DevFileName + "\"";
                 string cmdArgProd = "\"" + compareFolder + "\\" + matchedItems.Value.ProdFileName + "\"";
                 string cmdArgStgd = "\"" + compareFolder + "\\" + matchedItems.Value.StgdFileName + "\"";
                 string outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_prod_dev";
-                string cmdArgOutput = "\"" + compareFolder + "\\" + outputKey + ".html" + "\"";
+                string cmdArgOutput = "\"" + userStoryAttachmentFolder + "\\" + outputKey + ".html" + "\"";
                 finalArgs = " /silent " + cmdArgScript + " " + cmdArgProd + " " + cmdArgDev + " " + cmdArgOutput;
                 RunCommand(cmdText, finalArgs);
                 if (matchedItems.Value.StgdFileName != nullFile)
                 {
                     outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_dev_stgd";
-                    cmdArgOutput = "\"" + compareFolder + "\\" + outputKey + ".html" + "\"";
+                    cmdArgOutput = "\"" + userStoryAttachmentFolder + "\\" + outputKey + ".html" + "\"";
                     finalArgs = " /silent " + cmdArgScript + " " + cmdArgDev + " " + cmdArgStgd + " " + cmdArgOutput;
                     RunCommand(cmdText, finalArgs);
                 }
             }
-            CleanUpCompareFolder(fileArray);
+            //CleanUpCompareFolder(fileArray);
             Console.ReadLine();
         }
-
+        private static string CheckForOutputFolder(string checkOutputFolder, string checkstoryIDIndex)
+        {
+            DirectoryInfo dirOutputInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareOutputFolder"));
+            DirectoryInfo[] outputArray = dirOutputInfo.GetDirectories(checkstoryIDIndex, SearchOption.TopDirectoryOnly);
+            if (outputArray.Count() == 0)
+            {
+                // create
+            } 
+            else
+            {
+                // update
+            }
+            return outputArray[0].FullName;
+        }
         private static void CleanUpCompareFolder(FileInfo[] fileArray)
         {
             foreach (FileInfo fileName in fileArray)
             {
                 fileName.Delete();
             }
-            //throw new NotImplementedException();
         }
-
         private static void LoadFileName(string Region, FileInfo item, Compare compareMatchItem)
         {
             const string devRegion = "dev";
@@ -159,23 +175,18 @@ namespace CompareAutomation
                     break;
             }
         }
-
         private static void RunCommand(string cmdText, string cmdArgs)
         {
             Process cmd = new Process();
-
             cmd.StartInfo.FileName = cmdText;
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.CreateNoWindow = false;
             cmd.StartInfo.UseShellExecute = false;
             cmd.StartInfo.Arguments = cmdArgs;
-
             cmd.Start();
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
         }
-
-
     }
 }
