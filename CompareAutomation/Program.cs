@@ -47,7 +47,7 @@ namespace CompareAutomation
 
         public enum FileBreakdown
         {
-            devPackageIndex = 0,
+            userIDIndex = 0,
             moduleTypeIndex = 1,
             moduleNameIndex = 2,
             storyIDIndex = 3,
@@ -63,7 +63,7 @@ namespace CompareAutomation
             string compareFolder = ConfigurationManager.AppSettings.Get("CompareFolder");
             string compareOutputFolder = ConfigurationManager.AppSettings.Get("CompareOutputFolder");
             string nullFile = "null.null";
-            string devPackage;
+            string userID;
             string moduleType;
             string moduleName;
             string storyID;
@@ -76,13 +76,13 @@ namespace CompareAutomation
                 FileInfo item = fileArray[arrayIndex];
                 if (item.Name != nullFile)
                 {
-                    string[] parseString = item.Name.Split(new char[] { '_', '.' });
-                    devPackage = parseString[(int)FileBreakdown.devPackageIndex];
-                    moduleType = parseString[(int)FileBreakdown.moduleTypeIndex];
-                    moduleName = parseString[(int)FileBreakdown.moduleNameIndex];
-                    storyID = parseString[(int)FileBreakdown.storyIDIndex];
-                    region = parseString[(int)FileBreakdown.environmentIndex];
-                    string compareKey = devPackage + moduleType + moduleName;
+                    string[] parseArray = item.Name.Split(new char[] { '_', '.' });
+                    userID = parseArray[(int)FileBreakdown.userIDIndex];
+                    moduleType = parseArray[(int)FileBreakdown.moduleTypeIndex];
+                    moduleName = parseArray[(int)FileBreakdown.moduleNameIndex];
+                    storyID = parseArray[(int)FileBreakdown.storyIDIndex];
+                    region = parseArray[(int)FileBreakdown.environmentIndex];
+                    string compareKey = userID + moduleType + moduleName;
 
                     if (compareDictionary.ContainsKey(compareKey))
                     {
@@ -96,8 +96,7 @@ namespace CompareAutomation
                             ModuleName = moduleName,
                             ModuleType = moduleType,
                             Region = region,
-                            DevPackage = devPackage,
-                            Developer = "",
+                            UserID = userID,
                             Processed = false,
                             DevFileName = nullFile,
                             StoryID = storyID,
@@ -111,20 +110,20 @@ namespace CompareAutomation
             }
             string finalArgs = "";
 
-            foreach (var matchedItems in compareDictionary)
+            foreach (KeyValuePair<string, Compare> matchedItems in compareDictionary)
             {
                 string userStoryAttachmentFolder = CheckForOutputFolder(compareOutputFolder, matchedItems.Value.StoryID);
                 string cmdArgScript = "@\"" + compareScript + "\"";
                 string cmdArgDev = "\"" + compareFolder + "\\" + matchedItems.Value.DevFileName + "\"";
                 string cmdArgProd = "\"" + compareFolder + "\\" + matchedItems.Value.ProdFileName + "\"";
                 string cmdArgStgd = "\"" + compareFolder + "\\" + matchedItems.Value.StgdFileName + "\"";
-                string outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_prod_dev";
+                string outputKey = matchedItems.Value.UserID + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_prod_dev";
                 string cmdArgOutput = "\"" + userStoryAttachmentFolder + "\\" + outputKey + ".html" + "\"";
                 finalArgs = " /silent " + cmdArgScript + " " + cmdArgProd + " " + cmdArgDev + " " + cmdArgOutput;
                 RunCommand(cmdText, finalArgs);
                 if (matchedItems.Value.StgdFileName != nullFile)
                 {
-                    outputKey = matchedItems.Value.DevPackage + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_dev_stgd";
+                    outputKey = matchedItems.Value.UserID + "_" + matchedItems.Value.ModuleType + "_" + matchedItems.Value.ModuleName + "_compare_dev_stgd";
                     cmdArgOutput = "\"" + userStoryAttachmentFolder + "\\" + outputKey + ".html" + "\"";
                     finalArgs = " /silent " + cmdArgScript + " " + cmdArgDev + " " + cmdArgStgd + " " + cmdArgOutput;
                     RunCommand(cmdText, finalArgs);
@@ -136,16 +135,13 @@ namespace CompareAutomation
         private static string CheckForOutputFolder(string checkOutputFolder, string checkstoryIDIndex)
         {
             DirectoryInfo dirOutputInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareOutputFolder"));
-            DirectoryInfo[] outputArray = dirOutputInfo.GetDirectories(checkstoryIDIndex, SearchOption.TopDirectoryOnly);
-            if (outputArray.Count() == 0)
+            DirectoryInfo[] outputFolderArray = dirOutputInfo.GetDirectories(checkstoryIDIndex, SearchOption.TopDirectoryOnly);
+            string returnFolderName = checkstoryIDIndex;
+            if (outputFolderArray.Count() == 0)
             {
-                // create
+                dirOutputInfo.CreateSubdirectory(returnFolderName);
             } 
-            else
-            {
-                // update
-            }
-            return outputArray[0].FullName;
+            return checkOutputFolder + "\\" + returnFolderName;
         }
         private static void CleanUpCompareFolder(FileInfo[] fileArray)
         {

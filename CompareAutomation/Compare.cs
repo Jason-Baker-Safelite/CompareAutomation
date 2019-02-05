@@ -12,10 +12,9 @@ namespace CompareAutomation
         {
         }
         public string ModuleName { get; set; }
-        public string Developer { get; set; }
         public string Region { get; set; }
         public string ModuleType { get; set; }
-        public string DevPackage { get; set; }
+        public string UserID { get; set; }
         public string StoryID { get; set; }
         public bool Processed { get; set; }
         public string DevFileName { get; set; }
