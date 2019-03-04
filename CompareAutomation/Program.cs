@@ -56,18 +56,28 @@ namespace CompareAutomation
 
         static void Main(string[] args)
         {
+
             DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareFolder"));
             FileInfo[] fileArray = dirInfo.GetFiles("*.txt");
-            string cmdText = ConfigurationManager.AppSettings.Get("BeyondCompareExe");
-            string compareScript = ConfigurationManager.AppSettings.Get("CompareScript");
-            string compareFolder = ConfigurationManager.AppSettings.Get("CompareFolder");
-            string compareOutputFolder = ConfigurationManager.AppSettings.Get("CompareOutputFolder");
             string nullFile = "null.null";
             string userID;
             string moduleType;
             string moduleName;
             string storyID;
             string region;
+            string cmdText = ConfigurationManager.AppSettings.Get("BeyondCompareExe");
+            string compareScript = ConfigurationManager.AppSettings.Get("CompareScript");
+            string compareFolder = ConfigurationManager.AppSettings.Get("CompareFolder");
+            string compareOutputFolder = ConfigurationManager.AppSettings.Get("CompareOutputFolder");
+            string[] userKeyValues = ConfigurationManager.AppSettings.Get("EmailList").Split(new char[] { ';' });
+
+            Dictionary<string, string> userEmailDictionary = new Dictionary<string, string>();
+            foreach (string userKey in userKeyValues)
+            {
+                var userEmail = userKey.Split(new char[] { ':' });
+                userEmailDictionary.Add(userEmail[0], userEmail[1]);
+            }
+
 
             Dictionary<string, Compare> compareDictionary = new Dictionary<string, Compare>();
 
@@ -84,27 +94,30 @@ namespace CompareAutomation
                     region = parseArray[(int)FileBreakdown.environmentIndex];
                     string compareKey = userID + moduleType + moduleName;
 
-                    if (compareDictionary.ContainsKey(compareKey))
+                    if (userEmailDictionary.ContainsKey(userID))
                     {
-                        Compare compareMatchItem = compareDictionary[compareKey];
-                        LoadFileName(region, item, compareMatchItem);
-                    }
-                    else
-                    {
-                        Compare compareItem = new Compare()
+                        if (compareDictionary.ContainsKey(compareKey))
                         {
-                            ModuleName = moduleName,
-                            ModuleType = moduleType,
-                            Region = region,
-                            UserID = userID,
-                            Processed = false,
-                            DevFileName = nullFile,
-                            StoryID = storyID,
-                            ProdFileName = nullFile,
-                            StgdFileName = nullFile
-                        };
-                        LoadFileName(region, item, compareItem);
-                        compareDictionary.Add(compareKey, compareItem);
+                            Compare compareMatchItem = compareDictionary[compareKey];
+                            LoadFileName(region, item, compareMatchItem);
+                        }
+                        else
+                        {
+                            Compare compareItem = new Compare()
+                            {
+                                ModuleName = moduleName,
+                                ModuleType = moduleType,
+                                Region = region,
+                                UserID = userID,
+                                Processed = false,
+                                DevFileName = nullFile,
+                                StoryID = storyID,
+                                ProdFileName = nullFile,
+                                StgdFileName = nullFile
+                            };
+                            LoadFileName(region, item, compareItem);
+                            compareDictionary.Add(compareKey, compareItem);
+                        }
                     }
                 }
             }
@@ -140,7 +153,7 @@ namespace CompareAutomation
             if (outputFolderArray.Count() == 0)
             {
                 dirOutputInfo.CreateSubdirectory(returnFolderName);
-            } 
+            }
             return checkOutputFolder + "\\" + returnFolderName;
         }
         private static void CleanUpCompareFolder(FileInfo[] fileArray)
