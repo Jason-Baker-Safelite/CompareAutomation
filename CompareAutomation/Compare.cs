@@ -20,5 +20,7 @@ namespace CompareAutomation
         public string DevFileName { get; set; }
         public string ProdFileName { get; set; }
         public string StgdFileName { get; set; }
+        public string EmailAddress { get; set; }
+        public string Outputfile { get; set; }
     }
 }

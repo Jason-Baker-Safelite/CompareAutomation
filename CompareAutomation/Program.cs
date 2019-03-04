@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
+using System.Net.Mail;
 
 //The null.null file is used for new module "compares"
 
@@ -78,7 +77,6 @@ namespace CompareAutomation
                 userEmailDictionary.Add(userEmail[0], userEmail[1]);
             }
 
-
             Dictionary<string, Compare> compareDictionary = new Dictionary<string, Compare>();
 
             for (int arrayIndex = 0; arrayIndex < fileArray.Length; arrayIndex++)
@@ -113,7 +111,8 @@ namespace CompareAutomation
                                 DevFileName = nullFile,
                                 StoryID = storyID,
                                 ProdFileName = nullFile,
-                                StgdFileName = nullFile
+                                StgdFileName = nullFile,
+                                EmailAddress = userEmailDictionary[userID]
                             };
                             LoadFileName(region, item, compareItem);
                             compareDictionary.Add(compareKey, compareItem);
@@ -141,8 +140,10 @@ namespace CompareAutomation
                     finalArgs = " /silent " + cmdArgScript + " " + cmdArgDev + " " + cmdArgStgd + " " + cmdArgOutput;
                     RunCommand(cmdText, finalArgs);
                 }
+                matchedItems.Value.Outputfile = cmdArgOutput;
+                //MailMessage emailMessage = new MailMessage("JASON.BAKER@SAFELITE.COM", "JASON.BAKER@SAFELITE.COM", "Test compare", "This is a compare email");
             }
-            //CleanUpCompareFolder(fileArray);
+                        //CleanUpCompareFolder(fileArray);
             Console.ReadLine();
         }
         private static string CheckForOutputFolder(string checkOutputFolder, string checkstoryIDIndex)
