@@ -6,44 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Mail;
 
-//The null.null file is used for new module "compares"
-
-//Automation of the comparing of files derived by changes in the mainframe code theough BeyondCompare using command line
-//Generating a report
-//This script compares two files by name and generates an html report showing differences with context:
-//text-report layout:side-by-side &
-// options:ignore-unimportant,display-context &
-// output-to:%3 output-options:html-color %1 %2
-// https//www.scootersoftware.com/v4help/index.html?sample_scripts.html
-//
-// Assumptions:  file watcher will kick off once per hour
-//               don't use same HLQ package name within the same hour
-//               Always use initials for LLQ to allow emails to work
-
-// command line example for 3 files:
-// "C:\Program Files\Beyond Compare 4\BCompare.exe" C:\TEMP\SLG332JB_CPY_SLNAGSST_prod.TXT C:\TEMP\SLG332JB_CPY_SLNAGSST_dev.TXT C:\TEMP\null.txt1 C:\TEMP\OUTPUT.TXT
-
-
 namespace CompareAutomation
 {
     class Program
     {
-
-        // look up how to prevent the BC window from displaying
-        // build a file watcher program
-        // if files are there, load them into a collection
-        //                     parse the input file name for module, user, environmentIndex tag (dev vs. prod), Jira story number
-        //                     string function to find next instance of the "_"
-        //                     look for prod match of dev file
-        //                           if match found, do the compare and set files as processed;
-        //                                           otherwise, compare to an empty permanent file
-        //                     email the compare based on username (build a table of userid <--> email address
-        //                     delete the dev and prod files for that username
-        //                     put the compare report in the proper Jira folder in SPO
-        //                     wish list:  put a link of that compare report in SPO in the Jira story???
-        //
-        //"C:\\Program Files\\Beyond Compare 4\\BCompare.exe" \"TEMP\\comparescript.txt\" \"TEMP\\SLG332JB_CPY_SLNAGSST_dev.TXT\" \"TEMP\\SLG332JB_CPY_SLNAGSST_prod.TXT\" \"TEMP\Compare_SLNAGSST.html\"
-
         public enum FileBreakdown
         {
             userIDIndex = 0,
@@ -55,15 +21,14 @@ namespace CompareAutomation
 
         static void Main(string[] args)
         {
-
-            DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareFolder"));
-            FileInfo[] fileArray = dirInfo.GetFiles("*.txt");
             string nullFile = "null.null";
             string userID;
             string moduleType;
             string moduleName;
             string storyID;
             string region;
+            DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationManager.AppSettings.Get("CompareFolder"));
+            FileInfo[] fileArray = dirInfo.GetFiles("*.txt");
             string cmdText = ConfigurationManager.AppSettings.Get("BeyondCompareExe");
             string compareScript = ConfigurationManager.AppSettings.Get("CompareScript");
             string compareFolder = ConfigurationManager.AppSettings.Get("CompareFolder");
@@ -143,8 +108,8 @@ namespace CompareAutomation
                 matchedItems.Value.Outputfile = cmdArgOutput;
                 //MailMessage emailMessage = new MailMessage("JASON.BAKER@SAFELITE.COM", "JASON.BAKER@SAFELITE.COM", "Test compare", "This is a compare email");
             }
-                        //CleanUpCompareFolder(fileArray);
-            Console.ReadLine();
+            //CleanUpCompareFolder(fileArray);
+            //Console.ReadLine();
         }
         private static string CheckForOutputFolder(string checkOutputFolder, string checkstoryIDIndex)
         {
